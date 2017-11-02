@@ -9,37 +9,23 @@ import json
 import threading
 
 '//=========Configuration==========//'
-RES_W = 640 #resolution width
-RES_H = 480 #resolution height
-'----> ki yoon : Append environment variable'
-x = 100 #target x position
-y = 100 #target y position
-w = 200 #target width
-h = 200 #target height
-
-MIN_X = 0 #target x bound
-MIN_Y = 0 #target y bound
-MAX_X = RES_W-w #target x bound
-MAX_Y = RES_H-h #target y bound
-
 conf = {
-    'RES_W': 640,
-    'RES_H': 480,
-    'x': 100,
-    'y': 100,
-    'w': 200,
-    'h': 200,
-    'MIN_X': 0,
-    'MIN_Y': 0,
-    'metric': 2,
-    'prevKey': -1
+    'RES_W': 640,#resolution width
+    'RES_H': 480,#resolution height
+    'x': 100,#target x position
+    'y': 100,#target y position
+    'w': 200,#target width
+    'h': 200,#target height
+    'MIN_X': 0,#target x bound
+    'MIN_Y': 0,#target y bound
+    'metric': 2,#How much is target moved
+    'prevKey': -1,#To detect whether it is continuous key input
+    'timer': 0,
+    'timerTh': 3
     }
 
-conf['MAX_X'] = conf['RES_W'] - conf['w']
-conf['MAX_Y'] = conf['RES_H'] - conf['h']
-
-metric = 2 #How much is target moved
-prevKey = -1 #To detect whether it is continuous key input
+conf['MAX_X'] = conf['RES_W'] - conf['w'] #target x bound
+conf['MAX_Y'] = conf['RES_H'] - conf['h'] #target y bound
 '//END========Configuration========//'
 
 
@@ -54,9 +40,9 @@ lineType = 1
 
 '//========CAMERA SET=========//'
 camera = PiCamera()
-camera.resolution = (RES_W,RES_H)
+camera.resolution = (conf['RES_W'],conf['RES_H'])
 camera.framerate = 80
-rawCapture = PiRGBArray(camera, size=(RES_W,RES_H))
+rawCapture = PiRGBArray(camera, size=(conf['RES_W'],conf['RES_H']))
 
 time.sleep(0.1) #Time for preparing
 '//END======CAMERA SET======//'
@@ -78,8 +64,7 @@ def initBase():
 
     pow_base = 0
 
-timer = 0
-timerTh = 3
+
 '//END=====TARGET ACCEL=====//'
 
 '//=========FIFO THREAD SET==========//'
@@ -157,16 +142,15 @@ class FifoThread(threading.Thread):
                     fifo = -1
                 continue
 
-def proveKey(key) :
-    global timer, timerTh, conf
+def proveKey(conf, key) :
 
-    if conf['prevKey'] == key and timer < timerTh :
+    if conf['prevKey'] == key and conf['timer'] < conf['timerTh'] :
         conf['metric'] += getAcc()
     else :
         initBase()
         conf['metric'] = 2
         conf['prevKey'] = key
-    timer = 0
+    conf['timer'] = 0
 
 class KeyboardThread(threading.Thread):
     
@@ -221,11 +205,11 @@ if __name__ == "__main__":
             print(str(key))
         #adjust timer
         try:
-            timer += 1
-            if timer > timerTh:
-                timer = 0
+            conf['timer'] += 1
+            if conf['timer'] > conf['timerTh']:
+                conf['timer'] = 0
         except:
-            timer = 0
+            conf['timer'] = 0
             pass
 
         #take branched process
@@ -240,7 +224,7 @@ if __name__ == "__main__":
 
         elif key == ord("w"):
             #FIX IT BELOW
-            proveKey(key)
+            proveKey(conf, key)
             #END FIX IT BELOW`
 
             #DO NOT TOUCH
@@ -250,19 +234,19 @@ if __name__ == "__main__":
             #END DO NOT TOUCH
 
         elif key == ord("s"):
-            proveKey(key)
+            proveKey(conf, key)
             conf['y'] += conf['metric']
             if conf['y'] > conf['MAX_Y']:
                 conf['y'] = conf['MAX_Y']
 
         elif key == ord("d"):
-            proveKey(key)
+            proveKey(conf, key)
             conf['x'] += conf['metric']
             if conf['x'] > conf['MAX_X']:
                 conf['x'] = conf['MAX_X']
             
         elif key == ord("a"):
-            proveKey(key)
+            proveKey(conf, key)
             conf['x'] -= conf['metric']
             if conf['x'] < conf['MIN_X']:
                 conf['x'] = conf['MIN_X']
