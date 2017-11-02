@@ -70,12 +70,15 @@ def initBase():
 
 '//END=====TARGET ACCEL=====//'
 
+th_keyINput = KeyboardThread(conf)
+th_fifo = FifoThread()
+
 '//=========FIFO THREAD SET==========//'
 fifo = -1
 FIFO_PATH = "face_detect_fifo"
 '----------> ki yoon self study cli.c call uerface.c , cli.c make it'
-
 '//END======FIFO THREAD SET==========//'
+
 
 class FifoThread(threading.Thread):
     
@@ -145,27 +148,27 @@ class FifoThread(threading.Thread):
                     fifo = -1
                 continue
 
-def proveKey(conf, key) :
 
-    if conf['prevKey'] == key and conf['timer'] < conf['timerTh'] :
-        conf['metric'] += getAcc()
-    else :
-        initBase()
-        conf['metric'] = 2
-        conf['prevKey'] = key
-    conf['timer'] = 0
 
 class KeyboardThread(threading.Thread):
     
     def __init__(self, conf):
         threading.Thread.__init__(self)
         self.shutdown_event = threading.Event()
-        self.th_fifo = FifoThread()
-        self.th_fifo.start()
         self.conf = conf
 
+    def proveKey(self, conf, key) :
+
+        if conf['prevKey'] == key and conf['timer'] < conf['timerTh'] :
+            conf['metric'] += getAcc()
+        else :
+            initBase()
+            conf['metric'] = 2
+            conf['prevKey'] = key
+        conf['timer'] = 0
+
     def run(self):
-        global fifo, FIFO_PATH, q_key
+        global fifo, FIFO_PATH, q_key, th_fifo
         while not self.shutdown_event.is_set():
             '------------> ki yoon waitKey(argu) > the number of argu very very many,  we are keyboard ASCII surround, 0xFF = 256(ASCII num)'
             key = q_key.get()
@@ -185,14 +188,14 @@ class KeyboardThread(threading.Thread):
                     if fifo < 0:
                         with open(FIFO_PATH, 'w+') as fifo_file:
                             fifo_file.close()
-                    self.th_fifo.shutdown_event.set()
-                    self.th_fifo.join()
+                    th_fifo.shutdown_event.set()
+                    th_fifo.join()
                     cv2.destroyAllWindows()
                     break
 
                 elif key == ord("w"):
                     #FIX IT BELOW
-                    proveKey(conf, key)
+                    self.proveKey(conf, key)
                     #END FIX IT BELOW`
 
                     #DO NOT TOUCH
@@ -202,28 +205,27 @@ class KeyboardThread(threading.Thread):
                     #END DO NOT TOUCH
 
                 elif key == ord("s"):
-                    proveKey(conf, key)
+                    self.proveKey(conf, key)
                     self.conf['y'] += self.conf['metric']
                     if self.conf['y'] > self.conf['MAX_Y']:
                         self.conf['y'] = self.conf['MAX_Y']
 
                 elif key == ord("d"):
-                    proveKey(conf, key)
+                    self.proveKey(conf, key)
                     self.conf['x'] += self.conf['metric']
                     if self.conf['x'] > self.conf['MAX_X']:
                         self.conf['x'] = self.conf['MAX_X']
                     
                 elif key == ord("a"):
-                    proveKey(conf, key)
+                    self.proveKey(conf, key)
                     self.conf['x'] -= self.conf['metric']
                     if self.conf['x'] < self.conf['MIN_X']:
                         self.conf['x'] = self.conf['MIN_X']
-    
 
 if __name__ == "__main__":
 
-    th_keyINput = KeyboardThread(conf)
     th_keyINput.start()
+    th_fifo.start()
 
     for frame in camera.capture_continuous(rawCapture, format='bgr', use_video_port=True):
         #get source from camera
