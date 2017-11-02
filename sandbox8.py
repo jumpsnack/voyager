@@ -155,8 +155,8 @@ def proveKey(key) :
     timer = 0
 
 if __name__ == "__main__":
-    #th_fifo = FifoThread()
-    #th_fifo.start()
+    th_fifo = FifoThread()
+    th_fifo.start()
 
     for frame in camera.capture_continuous(rawCapture, format='bgr', use_video_port=True):
         #get source from camera
