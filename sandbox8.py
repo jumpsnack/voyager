@@ -160,7 +160,8 @@ def keyInputThread():
         #get input through the standard input
         key = cv2.waitKey(1) & 0xFF
         '------------> ki yoon waitKey(argu) > the number of argu very very many,  we are keyboard ASCII surround, 0xFF = 256(ASCII num)'
-        print(str(key))
+        if key != 255 :
+            print(str(key))
         #adjust timer
         try:
             timer += 1
