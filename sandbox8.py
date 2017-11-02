@@ -115,7 +115,9 @@ class FifoThread(threading.Thread):
             try:
                 if(fifo == -1):
                     fifo_file = open(FIFO_PATH, 'w')
+                    print "TRY FIFO REMOVE"
                     fifo_file.close()
+                    print "FIFO REMOVED"
                     fifo = os.open(FIFO_PATH, os.O_RDWR | os.O_NONBLOCK)
                     print('[fifo alert-'+str(fifo)+'] fifo is opened! path__'+FIFO_PATH)
                     break
@@ -209,6 +211,7 @@ if __name__ == "__main__":
         #take branched process
         if key == ord("q"):
             th_fifo.shutdown_event.set()
+            th_fifo._is_running = False
             th_fifo.join()
             cv2.destroyAllWindows()
             break
