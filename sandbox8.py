@@ -70,8 +70,6 @@ def initBase():
 
 '//END=====TARGET ACCEL=====//'
 
-th_keyINput = KeyboardThread(conf)
-th_fifo = FifoThread()
 
 '//=========FIFO THREAD SET==========//'
 fifo = -1
@@ -221,6 +219,9 @@ class KeyboardThread(threading.Thread):
                     self.conf['x'] -= self.conf['metric']
                     if self.conf['x'] < self.conf['MIN_X']:
                         self.conf['x'] = self.conf['MIN_X']
+
+th_keyINput = KeyboardThread(conf)
+th_fifo = FifoThread()
 
 if __name__ == "__main__":
 
