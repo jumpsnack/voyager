@@ -31,11 +31,12 @@ conf = {
     'h': 200,
     'MIN_X': 0,
     'MIN_Y': 0,
-    'MAX_X': conf['RES_W'] - conf['w'],
-    'MAX_Y': conf['RES_H'] - conf['h'],
     'metric': 2,
     'prevkey': -1
     }
+
+conf['MAX_X'] = conf['RES_W'] - conf['w']
+conf['MAX_Y'] = conf['RES_H'] - conf['h']
 
 metric = 2 #How much is target moved
 prevKey = -1 #To detect whether it is continuous key input
