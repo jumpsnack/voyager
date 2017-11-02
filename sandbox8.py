@@ -85,7 +85,7 @@ class FifoThread(threading.Thread):
         self.shutdown_event = threading.Event()
 
     def readFifo(self):
-        global fifo
+        global fifo, q_key
         while not self.shutdown_event.is_set():
             time.sleep(0.2)
             try:
@@ -97,9 +97,10 @@ class FifoThread(threading.Thread):
                     time.sleep(1.25)
                     print('__None')
                 try:
-                    parsed_json = json.loads(data)
-                    print('cnt: {0}, cx: {1}, cy: {2}, left: {3}, top: {4}, right: {5}, bottom: {6}'.format(
-                        parsed_json['cnt'], parsed_json['cx'], parsed_json['cy'], parsed_json['left'], parsed_json['top'], parsed_json['right'], parsed_json['bottom']))
+                    q_key.put(ord(data))
+                    #parsed_json = json.loads(data)
+                    #print('cnt: {0}, cx: {1}, cy: {2}, left: {3}, top: {4}, right: {5}, bottom: {6}'.format(
+                    #    parsed_json['cnt'], parsed_json['cx'], parsed_json['cy'], parsed_json['left'], parsed_json['top'], parsed_json['right'], parsed_json['bottom']))
                 except:
                     raise
                     pass
@@ -270,7 +271,8 @@ if __name__ == "__main__":
         #show it
         cv2.imshow("Test", image)
 
-        q_key.put(cv2.waitKey(1) & 0xFF)
+        #q_key.put()
+        cv2.waitKey(1) & 0xFF
 
         '''post-process'''
         #make clean the buffer above
