@@ -241,8 +241,6 @@ if __name__ == "__main__":
     th_keyINput.start()
     th_fifo.start()
 
-    cv2.namedWindow("Origin", cv2.CV_WINDOW_AUTOSIZE)
-
     for frame in camera.capture_continuous(rawCapture, format='bgr', use_video_port=True):
         #get source from camera
         image = frame.array
