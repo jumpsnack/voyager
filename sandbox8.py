@@ -185,9 +185,9 @@ if __name__ == "__main__":
         cv2.imshow("Test", image)
 
         #get input through the standard input
-        key = cv2.waitKey(1) & 0xFF
+        key = cv2.waitKey(25) & 0xFF
         '------------> ki yoon waitKey(argu) > the number of argu very very many,  we are keyboard ASCII surround, 0xFF = 256(ASCII num)'
-        print(str(key) + '\n')
+        print(str(key))
         #adjust timer
         try:
             timer += 1
@@ -204,7 +204,9 @@ if __name__ == "__main__":
         #take branched process
         if key == ord("q"):
             thread_stop()
+            th_fifo._Thread_stop()
             th_fifo.join()
+            cv2.destroyAllWindows()
             break
 
         elif key == ord("w"):
