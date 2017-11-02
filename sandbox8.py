@@ -22,6 +22,21 @@ MIN_Y = 0 #target y bound
 MAX_X = RES_W-w #target x bound
 MAX_Y = RES_H-h #target y bound
 
+conf = {
+    'RES_W': 640,
+    'RES_H': 480,
+    'x': 100,
+    'y': 100,
+    'w': 200,
+    'h': 200,
+    'MIN_X': 0,
+    'MIN_Y': 0,
+    'MAX_X': conf['RES_W'] - conf['w'],
+    'MAX_Y': conf['RES_H'] - conf['h'],
+    'metric': 2,
+    'prevkey': -1
+    }
+
 metric = 2 #How much is target moved
 prevKey = -1 #To detect whether it is continuous key input
 '//END========Configuration========//'
@@ -81,7 +96,6 @@ class FifoThread(threading.Thread):
 
     def readFifo(self):
         global fifo
-        print "TRY READ"
         while not self.shutdown_event.is_set():
             time.sleep(0.2)
             try:
@@ -110,14 +124,11 @@ class FifoThread(threading.Thread):
         global fifo, FIFO_PATH
 
         while not self.shutdown_event.is_set():
-            print "TRY OPEN"
             time.sleep(0.025)
             try:
                 if(fifo == -1):
                     fifo_file = open(FIFO_PATH, 'w+')
-                    print "TRY FIFO REMOVE"
                     fifo_file.close()
-                    print "FIFO REMOVED"
                     fifo = os.open(FIFO_PATH, os.O_RDWR | os.O_NONBLOCK)
                     print('[fifo alert-'+str(fifo)+'] fifo is opened! path__'+FIFO_PATH)
                     break
@@ -132,10 +143,7 @@ class FifoThread(threading.Thread):
 
     def run(self):
         global fifo, FIFO_PATH
-        print "THREAD START"
-        while not self.shutdown_event.is_set():
-            try:
-                print "THREAD IN"
+        while not self.shutdown_event.is_set
                 self.openFifo()
                 self.readFifo()
             except:
@@ -148,15 +156,25 @@ class FifoThread(threading.Thread):
                 continue
 
 def proveKey(key) :
-    global prevKey, timer, timerTh, metric
+    global timer, timerTh, conf
 
-    if prevKey == key and timer < timerTh :
-        metric += getAcc()
+    if conf['prevKey'] == key and timer < timerTh :
+        conf['metric'] += getAcc()
     else :
         initBase()
-        metric = 2
-        prevKey = key
+        conf['metric'] = 2
+        conf['prevKey'] = key
     timer = 0
+
+class KeyboardThread(threading.Thread):
+    
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.shutdown_event = threading.Event()
+
+    def run(self):
+        'he'
+    
 
 if __name__ == "__main__":
     th_fifo = FifoThread()
@@ -169,7 +187,7 @@ if __name__ == "__main__":
         '''pre-process'''
         #set text on the source
         cv2.putText(image
-                    , 'x: ' + str(x) + ' y: ' + str(y)
+                    , 'x: ' + str(conf['x']) + ' y: ' + str(conf['y'])
                     ,topLeftCornerOfText
                     ,font
                     ,fontScale
@@ -177,8 +195,8 @@ if __name__ == "__main__":
                     ,lineType)
         #set target on the source
         cv2.rectangle(image
-                    ,(x,y)
-                    ,(x+w, y+h)
+                    ,(conf['x'],conf['y'])
+                    ,(conf['x']+conf['w'], conf['y']+conf['h'])
                     ,(0,0,255)
                     ,1)
         #show source which is processed
@@ -186,7 +204,7 @@ if __name__ == "__main__":
 
         '''dealing process'''
         #crop that
-        image = image[y:y+h, x:x+w]
+        image = image[conf['y']:conf['y']+conf['h'], conf['x']:conf['x']+conf['w']]
 
         #show it
         cv2.imshow("Test", image)
@@ -210,7 +228,6 @@ if __name__ == "__main__":
 
         #take branched process
         if key == ord("q"):
-            print(fifo)
             if fifo < 0:
                 with open(FIFO_PATH, 'w+') as fifo_file:
                     fifo_file.close()
@@ -225,25 +242,25 @@ if __name__ == "__main__":
             #END FIX IT BELOW`
 
             #DO NOT TOUCH
-            y = y-metric
-            if y < MIN_Y:
-                y = MIN_Y
+            conf['y'] -= conf['metric']
+            if conf['y'] < conf['MIN_Y']:
+                conf['y'] = conf['MIN_Y']
             #END DO NOT TOUCH
 
         elif key == ord("s"):
             proveKey(key)
-            y = y+metric
-            if y > MAX_Y:
-                y = MAX_Y
+            conf['y'] += conf['metric']
+            if conf['y'] > conf['MAX_Y']:
+                conf['y'] = conf['MAX_Y']
 
         elif key == ord("d"):
             proveKey(key)
-            x = x+metric
-            if x > MAX_X:
-                x = MAX_X
+            conf['x'] += conf['metric']
+            if conf['x'] > conf['MAX_X']:
+                conf['x'] = conf['MAX_X']
             
         elif key == ord("a"):
             proveKey(key)
-            x = x-metric
-            if x < MIN_X:
-                x = MIN_X
+            conf['x'] -= conf['metric']
+            if conf['x'] < conf['MIN_X']:
+                conf['x'] = conf['MIN_X']
