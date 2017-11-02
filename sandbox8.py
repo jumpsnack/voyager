@@ -39,7 +39,7 @@ lineType = 1
 '//========CAMERA SET=========//'
 camera = PiCamera()
 camera.resolution = (RES_W,RES_H)
-camera.framerate = 30
+camera.framerate = 80
 rawCapture = PiRGBArray(camera, size=(RES_W,RES_H))
 
 time.sleep(0.1) #Time for preparing
@@ -187,7 +187,6 @@ if __name__ == "__main__":
         #get input through the standard input
         key = cv2.waitKey(1) & 0xFF
         '------------> ki yoon waitKey(argu) > the number of argu very very many,  we are keyboard ASCII surround, 0xFF = 256(ASCII num)'
-        cv2.destroyAllWindows()
         #adjust timer
         try:
             timer += 1
