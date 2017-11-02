@@ -271,9 +271,8 @@ if __name__ == "__main__":
         #show it
         cv2.imshow("Test", image)
 
-        #q_key.put()
-        cv2.waitKey(1) & 0xFF
-
+        q_key.put(cv2.waitKey(1) & 0xFF)
+        
         '''post-process'''
         #make clean the buffer above
         rawCapture.truncate(0)
