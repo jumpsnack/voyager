@@ -73,59 +73,58 @@ FIFO_PATH = "face_detect_fifo"
 
 '//END======FIFO THREAD SET==========//'
 
+def readFifo():
+    global fifo
+
+    while not self.shutdown_event.is_set():
+        time.sleep(0.2)
+        try:
+            data = os.read(fifo, 1024)
+            if(len(data) != 0):
+                print('Read: "{0}"'.format(data))
+                '-------> ki yoon not understand'
+            else:
+                time.sleep(1.25)
+                print('__None')
+            try:
+                parsed_json = json.loads(data)
+                print('cnt: {0}, cx: {1}, cy: {2}, left: {3}, top: {4}, right: {5}, bottom: {6}'.format(
+                    parsed_json['cnt'], parsed_json['cx'], parsed_json['cy'], parsed_json['left'], parsed_json['top'], parsed_json['right'], parsed_json['bottom']))
+            except:
+                raise
+                pass
+        except OSError as err:
+            if err.errno == 11:
+                continue
+            pass
+        except:
+            raise
+
+def openFifo():
+    global fifo, FIFO_PATH
+
+    while not self.shutdown_event.is_set():
+        time.sleep(0.025)
+        try:
+            if(fifo == -1):
+                fifo_file = open(FIFO_PATH, 'w')
+                fifo_file.close()
+                fifo = os.open(FIFO_PATH, os.O_RDWR | os.O_NONBLOCK)
+                print('[fifo alert-'+str(fifo)+'] fifo is opened! path__'+FIFO_PATH)
+                break
+            else :
+                print('[fifo alert-'+str(fifo)+'] fifo is already opened...')
+                break
+        except:
+            raise
+            print("[fifo error] Can't open the fifo! path__" + FIFO_PATH)
+            continue
+
 class FifoThread(threading.Thread):
     
     def __init__(self):
         threading.Thread.__init__(self)
         self.shutdown_event = threading.Event()
-
-    def readFifo():
-        global fifo
-
-        while not self.shutdown_event.is_set():
-            time.sleep(0.2)
-            try:
-                data = os.read(fifo, 1024)
-                if(len(data) != 0):
-                    print('Read: "{0}"'.format(data))
-                    '-------> ki yoon not understand'
-                else:
-                    time.sleep(1.25)
-                    print('__None')
-                try:
-                    parsed_json = json.loads(data)
-                    print('cnt: {0}, cx: {1}, cy: {2}, left: {3}, top: {4}, right: {5}, bottom: {6}'.format(
-                        parsed_json['cnt'], parsed_json['cx'], parsed_json['cy'], parsed_json['left'], parsed_json['top'], parsed_json['right'], parsed_json['bottom']))
-                except:
-                    raise
-                    pass
-            except OSError as err:
-                if err.errno == 11:
-                    continue
-                pass
-            except:
-                raise
-
-    def openFifo():
-        global fifo, FIFO_PATH
-
-        while not self.shutdown_event.is_set():
-            time.sleep(0.025)
-            try:
-                if(fifo == -1):
-                    fifo_file = open(FIFO_PATH, 'w')
-                    fifo_file.close()
-                    fifo = os.open(FIFO_PATH, os.O_RDWR | os.O_NONBLOCK)
-                    print('[fifo alert-'+str(fifo)+'] fifo is opened! path__'+FIFO_PATH)
-                    break
-                else :
-                    print('[fifo alert-'+str(fifo)+'] fifo is already opened...')
-                    break
-            except:
-                raise
-                print("[fifo error] Can't open the fifo! path__" + FIFO_PATH)
-                continue
-
 
     def run(self):
         global fifo, FIFO_PATH
