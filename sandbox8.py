@@ -165,10 +165,10 @@ class KeyboardThread(threading.Thread):
         self.conf = conf
 
     def run(self):
-        global fifo, FIFO_PATH, key_q
+        global fifo, FIFO_PATH, q_key
         while not self.shutdown_event.is_set():
             '------------> ki yoon waitKey(argu) > the number of argu very very many,  we are keyboard ASCII surround, 0xFF = 256(ASCII num)'
-            key = key_q.get()
+            key = q_key.get()
             #adjust timer
             try:
                 conf['timer'] += 1
@@ -255,7 +255,7 @@ if __name__ == "__main__":
         cv2.imshow("Test", image)
 
 
-        key_q.put(cv2.waitKey(1) & 0xFF)
+        q_key.put(cv2.waitKey(1) & 0xFF)
 
         '''post-process'''
         #make clean the buffer above
