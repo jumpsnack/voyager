@@ -70,75 +70,77 @@ timerTh = 3
 fifo = -1
 FIFO_PATH = "face_detect_fifo"
 '----------> ki yoon self study cli.c call uerface.c , cli.c make it'
-thCond = True
+
 '//END======FIFO THREAD SET==========//'
 
-def openFifo():
-    global fifo, FIFO_PATH, thCond
+class FifoThread(threading.Thread):
+    
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.shutdown_event = threading.Event()
 
-    while thCond:
-        time.sleep(0.025)
-        try:
-            if(fifo == -1):
-                fifo_file = open(FIFO_PATH, 'w')
-                fifo_file.close()
-                fifo = os.open(FIFO_PATH, os.O_RDWR | os.O_NONBLOCK)
-                print('[fifo alert-'+str(fifo)+'] fifo is opened! path__'+FIFO_PATH)
-                break
-            else :
-                print('[fifo alert-'+str(fifo)+'] fifo is already opened...')
-                break
-        except:
-            raise
-            print("[fifo error] Can't open the fifo! path__" + FIFO_PATH)
-            continue
+    def run(self):
+        global fifo, FIFO_PATH
 
-def readFifo():
-    global fifo, thCond
-
-    while thCond:
-        time.sleep(0.02)
-        try:
-            data = os.read(fifo, 1024)
-            if(len(data) != 0):
-                print('Read: "{0}"'.format(data))
-                '-------> ki yoon not understand'
-            else:
-                time.sleep(1.25)
-                print('__None')
+        while not self.shutdown_event.is_set():
             try:
-				parsed_json = json.loads(data)
-				print('cnt: {0}, cx: {1}, cy: {2}, left: {3}, top: {4}, right: {5}, bottom: {6}'.format(
-					parsed_json['cnt'], parsed_json['cx'], parsed_json['cy'], parsed_json['left'], parsed_json['top'], parsed_json['right'], parsed_json['bottom']))
+                openFifo()
+                readFifo()
             except:
                 raise
-                pass
-        except OSError as err:
-            if err.errno == 11:
+                print('[fifo stopped] there are error in fifo process\n\t\tJust give me a secs')
+                time.sleep(3)
+                if fifo != -1:
+                    os.close(fifo)
+                    fifo = -1
                 continue
-            pass
-        except:
-            raise
 
-def thread_fifo():
-    global fifo, FIFO_PATH, thCond
+    def readFifo():
+        global fifo
 
-    while thCond:
-        try:
-            openFifo()
-            readFifo()
-        except:
-            raise
-            print('[fifo stopped] there are error in fifo process\n\t\tJust give me a secs')
-            time.sleep(3)
-            if fifo != -1:
-                os.close(fifo)
-                fifo = -1
-            continue
+        while not self.shutdown_event.is_set():
+            time.sleep(0.2)
+            try:
+                data = os.read(fifo, 1024)
+                if(len(data) != 0):
+                    print('Read: "{0}"'.format(data))
+                    '-------> ki yoon not understand'
+                else:
+                    time.sleep(1.25)
+                    print('__None')
+                try:
+                    parsed_json = json.loads(data)
+                    print('cnt: {0}, cx: {1}, cy: {2}, left: {3}, top: {4}, right: {5}, bottom: {6}'.format(
+                        parsed_json['cnt'], parsed_json['cx'], parsed_json['cy'], parsed_json['left'], parsed_json['top'], parsed_json['right'], parsed_json['bottom']))
+                except:
+                    raise
+                    pass
+            except OSError as err:
+                if err.errno == 11:
+                    continue
+                pass
+            except:
+                raise
 
-def thread_stop():
-    global thCond
-    thCond = False
+    def openFifo():
+        global fifo, FIFO_PATH
+
+        while not self.shutdown_event.is_set():
+            time.sleep(0.025)
+            try:
+                if(fifo == -1):
+                    fifo_file = open(FIFO_PATH, 'w')
+                    fifo_file.close()
+                    fifo = os.open(FIFO_PATH, os.O_RDWR | os.O_NONBLOCK)
+                    print('[fifo alert-'+str(fifo)+'] fifo is opened! path__'+FIFO_PATH)
+                    break
+                else :
+                    print('[fifo alert-'+str(fifo)+'] fifo is already opened...')
+                    break
+            except:
+                raise
+                print("[fifo error] Can't open the fifo! path__" + FIFO_PATH)
+                continue
 
 def proveKey(key) :
     global prevKey, timer, timerTh, metric
@@ -152,7 +154,7 @@ def proveKey(key) :
     timer = 0
 
 if __name__ == "__main__":
-    th_fifo = threading.Thread(target=thread_fifo)
+    th_fifo = FifoThread()
     th_fifo.start()
 
     for frame in camera.capture_continuous(rawCapture, format='bgr', use_video_port=True):
@@ -203,8 +205,7 @@ if __name__ == "__main__":
 
         #take branched process
         if key == ord("q"):
-            thread_stop()
-            th_fifo._Thread_stop()
+            th_fifo.shutdown_event.set()
             th_fifo.join()
             cv2.destroyAllWindows()
             break
