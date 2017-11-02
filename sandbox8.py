@@ -187,6 +187,7 @@ if __name__ == "__main__":
         #get input through the standard input
         key = cv2.waitKey(1) & 0xFF
         '------------> ki yoon waitKey(argu) > the number of argu very very many,  we are keyboard ASCII surround, 0xFF = 256(ASCII num)'
+        print(str(key) + '\n')
         #adjust timer
         try:
             timer += 1
