@@ -79,22 +79,6 @@ class FifoThread(threading.Thread):
         threading.Thread.__init__(self)
         self.shutdown_event = threading.Event()
 
-    def run(self):
-        global fifo, FIFO_PATH
-
-        while not self.shutdown_event.is_set():
-            try:
-                openFifo()
-                readFifo()
-            except:
-                raise
-                print('[fifo stopped] there are error in fifo process\n\t\tJust give me a secs')
-                time.sleep(3)
-                if fifo != -1:
-                    os.close(fifo)
-                    fifo = -1
-                continue
-
     def readFifo():
         global fifo
 
@@ -142,6 +126,23 @@ class FifoThread(threading.Thread):
                 print("[fifo error] Can't open the fifo! path__" + FIFO_PATH)
                 continue
 
+
+    def run(self):
+        global fifo, FIFO_PATH
+
+        while not self.shutdown_event.is_set():
+            try:
+                openFifo()
+                readFifo()
+            except:
+                raise
+                print('[fifo stopped] there are error in fifo process\n\t\tJust give me a secs')
+                time.sleep(3)
+                if fifo != -1:
+                    os.close(fifo)
+                    fifo = -1
+                continue
+
 def proveKey(key) :
     global prevKey, timer, timerTh, metric
 
@@ -179,7 +180,7 @@ def keyInputThread():
         elif key == ord("w"):
             #FIX IT BELOW
             proveKey(key)
-            #END FIX IT BELOW
+            #END FIX IT BELOW`
 
             #DO NOT TOUCH
             y = y-metric
