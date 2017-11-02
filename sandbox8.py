@@ -32,7 +32,7 @@ conf = {
     'MIN_X': 0,
     'MIN_Y': 0,
     'metric': 2,
-    'prevkey': -1
+    'prevKey': -1
     }
 
 conf['MAX_X'] = conf['RES_W'] - conf['w']
