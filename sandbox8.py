@@ -154,10 +154,43 @@ def proveKey(key) :
         prevKey = key
     timer = 0
 
-def keyInputThread():
-    global timer, timerTh, th_fifo, x, y, metric, MAX_X, MAX_Y, MIN_X, MIN_Y
-    while True:
-        #get input through the standard input
+if __name__ == "__main__":
+    #th_fifo = FifoThread()
+    #th_fifo.start()
+
+    for frame in camera.capture_continuous(rawCapture, format='bgr', use_video_port=True):
+        #get source from camera
+        image = frame.array
+
+        '''pre-process'''
+        #set text on the source
+        cv2.putText(image
+                    , 'x: ' + str(x) + ' y: ' + str(y)
+                    ,topLeftCornerOfText
+                    ,font
+                    ,fontScale
+                    ,fontColor
+                    ,lineType)
+        #set target on the source
+        cv2.rectangle(image
+                    ,(x,y)
+                    ,(x+w, y+h)
+                    ,(0,0,255)
+                    ,1)
+        #show source which is processed
+        cv2.imshow("Origin", image)
+
+        '''dealing process'''
+        #crop that
+        image = image[y:y+h, x:x+w]
+
+        #show it
+        cv2.imshow("Test", image)
+
+        '''post-process'''
+        #make clean the buffer above
+        rawCapture.truncate(0)
+
         key = cv2.waitKey(1) & 0xFF
         '------------> ki yoon waitKey(argu) > the number of argu very very many,  we are keyboard ASCII surround, 0xFF = 256(ASCII num)'
         if key != 255 :
@@ -206,43 +239,3 @@ def keyInputThread():
             x = x-metric
             if x < MIN_X:
                 x = MIN_X
-
-if __name__ == "__main__":
-    #th_fifo = FifoThread()
-    #th_fifo.start()
-
-    th_keyIn = threading.Thread(target=keyInputThread)
-    th_keyIn.start()
-
-    for frame in camera.capture_continuous(rawCapture, format='bgr', use_video_port=True):
-        #get source from camera
-        image = frame.array
-
-        '''pre-process'''
-        #set text on the source
-        cv2.putText(image
-                    , 'x: ' + str(x) + ' y: ' + str(y)
-                    ,topLeftCornerOfText
-                    ,font
-                    ,fontScale
-                    ,fontColor
-                    ,lineType)
-        #set target on the source
-        cv2.rectangle(image
-                    ,(x,y)
-                    ,(x+w, y+h)
-                    ,(0,0,255)
-                    ,1)
-        #show source which is processed
-        cv2.imshow("Origin", image)
-
-        '''dealing process'''
-        #crop that
-        image = image[y:y+h, x:x+w]
-
-        #show it
-        cv2.imshow("Test", image)
-
-        '''post-process'''
-        #make clean the buffer above
-        rawCapture.truncate(0)
