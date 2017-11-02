@@ -146,6 +146,7 @@ class FifoThread(threading.Thread):
                 if fifo != -1:
                     os.close(fifo)
                     fifo = -1
+                    os.remove(FIFO_PATH)
                 continue
 
 class TimerThread(threading.Thread):
