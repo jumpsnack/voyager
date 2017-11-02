@@ -119,6 +119,8 @@ class FifoThread(threading.Thread):
             try:
                 if(fifo == -1):
                     fifo_file = open(FIFO_PATH, 'w+')
+                    fifo_file.seek(0)
+                    fifo_file.truncate(0)
                     fifo_file.close()
                     fifo = os.open(FIFO_PATH, os.O_RDWR | os.O_NONBLOCK)
                     print('[fifo alert-'+str(fifo)+'] fifo is opened! path__'+FIFO_PATH)
