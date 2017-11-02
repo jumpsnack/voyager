@@ -132,8 +132,8 @@ class FifoThread(threading.Thread):
 
         while not self.shutdown_event.is_set():
             try:
-                openFifo()
-                readFifo()
+                self.openFifo()
+                self.readFifo()
             except:
                 raise
                 print('[fifo stopped] there are error in fifo process\n\t\tJust give me a secs')
