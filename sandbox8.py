@@ -256,4 +256,5 @@ if __name__ == "__main__":
         #make clean the buffer above
         rawCapture.truncate(0)
 
-        if(not th_keyINput.isAlive()) break
+        if(not th_keyINput.isAlive()):
+            break
