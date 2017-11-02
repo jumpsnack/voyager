@@ -146,7 +146,25 @@ class FifoThread(threading.Thread):
                     fifo = -1
                 continue
 
+class TimerThread(threading.Thread):
+    
+    def __init__(self, conf):
+        threading.Thread.__init__(self)
+        self.shutdown_event = threading.Event()
+        self.conf = conf
 
+    def run(self):
+        while not self.shutdown_event.is_set():
+            #adjust timer
+            try:
+                conf['timer'] += 1
+                print(str(conf['timer']))
+                if conf['timer'] > conf['timerTh']:
+                    conf['timer'] = 0
+                time.sleep(1)
+            except:
+                conf['timer'] = 0
+                pass
 
 class KeyboardThread(threading.Thread):
     
@@ -166,18 +184,10 @@ class KeyboardThread(threading.Thread):
         conf['timer'] = 0
 
     def run(self):
-        global fifo, FIFO_PATH, q_key, th_fifo
+        global fifo, FIFO_PATH, q_key, th_fifo, th_timer
         while not self.shutdown_event.is_set():
             '------------> ki yoon waitKey(argu) > the number of argu very very many,  we are keyboard ASCII surround, 0xFF = 256(ASCII num)'
             key = q_key.get()
-            #adjust timer
-            try:
-                conf['timer'] += 1
-                if conf['timer'] > conf['timerTh']:
-                    conf['timer'] = 0
-            except:
-                conf['timer'] = 0
-                pass
 
             if key != 255 :
                 print(str(key))
@@ -186,10 +196,11 @@ class KeyboardThread(threading.Thread):
                     if fifo < 0:
                         with open(FIFO_PATH, 'w+') as fifo_file:
                             fifo_file.close()
+                    th_timer.shutdown_event.set()
+                    self.shutdown_event.set()
                     th_fifo.shutdown_event.set()
                     th_fifo.join()
                     cv2.destroyAllWindows()
-                    break
 
                 elif key == ord("w"):
                     #FIX IT BELOW
@@ -220,11 +231,13 @@ class KeyboardThread(threading.Thread):
                     if self.conf['x'] < self.conf['MIN_X']:
                         self.conf['x'] = self.conf['MIN_X']
 
+th_timer = TimerThread(conf)
 th_keyINput = KeyboardThread(conf)
 th_fifo = FifoThread()
 
 if __name__ == "__main__":
 
+    th_timer.start()
     th_keyINput.start()
     th_fifo.start()
 
@@ -256,7 +269,6 @@ if __name__ == "__main__":
 
         #show it
         cv2.imshow("Test", image)
-
 
         q_key.put(cv2.waitKey(1) & 0xFF)
 
