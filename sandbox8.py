@@ -22,7 +22,7 @@ conf = {
     'metric': 2,#How much is target moved
     'prevKey': -1,#To detect whether it is continuous key input
     'timer': 0,
-    'timerTh': 3
+    'timerTh': 1
     }
 
 conf['MAX_X'] = conf['RES_W'] - conf['w'] #target x bound
@@ -240,6 +240,10 @@ if __name__ == "__main__":
     th_timer.start()
     th_keyINput.start()
     th_fifo.start()
+
+    cv2.namedWindow("Origin", cv2.CV_WINDOW_AUTOSIZE)
+    cv2.namedWindow("Test", cv2.CV_WINDOW_AUTOSIZE)
+    cv2.startWindowThread()
 
     for frame in camera.capture_continuous(rawCapture, format='bgr', use_video_port=True):
         #get source from camera
