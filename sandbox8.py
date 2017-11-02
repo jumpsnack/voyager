@@ -242,7 +242,6 @@ if __name__ == "__main__":
     th_fifo.start()
 
     cv2.namedWindow("Origin", cv2.CV_WINDOW_AUTOSIZE)
-    cv2.startWindowThread()
 
     for frame in camera.capture_continuous(rawCapture, format='bgr', use_video_port=True):
         #get source from camera
