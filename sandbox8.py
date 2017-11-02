@@ -7,7 +7,6 @@ import errno
 import time
 import json
 import threading
-import pdb
 
 '//=========Configuration==========//'
 conf = {
@@ -165,9 +164,8 @@ class KeyboardThread(threading.Thread):
     def run(self):
         global fifo, FIFO_PATH
         while not self.shutdown_event.is_set():
-            key = cv2.waitKey(1) & 0xFF
             '------------> ki yoon waitKey(argu) > the number of argu very very many,  we are keyboard ASCII surround, 0xFF = 256(ASCII num)'
-            
+            key = 1
             #adjust timer
             try:
                 conf['timer'] += 1
@@ -227,7 +225,7 @@ if __name__ == "__main__":
     for frame in camera.capture_continuous(rawCapture, format='bgr', use_video_port=True):
         #get source from camera
         image = frame.array
-        pdb.set_trace()
+
         '''pre-process'''
         #set text on the source
         cv2.putText(image
@@ -253,7 +251,8 @@ if __name__ == "__main__":
         #show it
         cv2.imshow("Test", image)
 
-        cv2.waitKey(1)
+
+        key = cv2.waitKey(1) & 0xFF
 
         '''post-process'''
         #make clean the buffer above
