@@ -79,7 +79,7 @@ class FifoThread(threading.Thread):
         threading.Thread.__init__(self)
         self.shutdown_event = threading.Event()
 
-    def readFifo():
+    def readFifo(self):
         global fifo
 
         while not self.shutdown_event.is_set():
@@ -106,7 +106,7 @@ class FifoThread(threading.Thread):
             except:
                 raise
 
-    def openFifo():
+    def openFifo(self):
         global fifo, FIFO_PATH
 
         while not self.shutdown_event.is_set():
