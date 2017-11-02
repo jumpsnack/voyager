@@ -187,7 +187,7 @@ if __name__ == "__main__":
         cv2.imshow("Test", image)
 
         #get input through the standard input
-        key = cv2.waitKey(25) & 0xFF
+        key = cv2.waitKey(2500) & 0xFF
         '------------> ki yoon waitKey(argu) > the number of argu very very many,  we are keyboard ASCII surround, 0xFF = 256(ASCII num)'
         print(str(key))
         #adjust timer
