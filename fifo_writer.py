@@ -9,4 +9,4 @@ while True:
     fifo.write('d')
     fifo.flush()
     print "WRITE"
-    time.sleep(0.8)
+    time.sleep(0.025)
