@@ -211,6 +211,10 @@ if __name__ == "__main__":
         #take branched process
         if key == ord("q"):
             print(fifo)
+            if fifo < 0:
+                with open(FIFO_PATH, 'w') as fifo_file:
+                    fifo_file.write('-1')
+                    fifo_file.close()
             th_fifo.shutdown_event.set()
             th_fifo.join()
             cv2.destroyAllWindows()
