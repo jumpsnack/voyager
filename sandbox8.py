@@ -154,17 +154,74 @@ def proveKey(conf, key) :
 
 class KeyboardThread(threading.Thread):
     
-    def __init__(self):
+    def __init__(self, conf):
         threading.Thread.__init__(self)
         self.shutdown_event = threading.Event()
+        self.th_fifo = FifoThread()
+        self.th_fifo.start()
+        self.conf = conf
 
     def run(self):
-        'he'
+        global fifo, FIFO_PATH
+        while not self.shutdown_event.is_set():
+            key = cv2.waitKey(1) & 0xFF
+            '------------> ki yoon waitKey(argu) > the number of argu very very many,  we are keyboard ASCII surround, 0xFF = 256(ASCII num)'
+            
+            #adjust timer
+            try:
+                conf['timer'] += 1
+                if conf['timer'] > conf['timerTh']:
+                    conf['timer'] = 0
+            except:
+                conf['timer'] = 0
+                pass
+
+            if key != 255 :
+                print(str(key))
+                #take branched process
+                if key == ord("q"):
+                    if fifo < 0:
+                        with open(FIFO_PATH, 'w+') as fifo_file:
+                            fifo_file.close()
+                    self.th_fifo.shutdown_event.set()
+                    self.th_fifo.join()
+                    cv2.destroyAllWindows()
+                    break
+
+                elif key == ord("w"):
+                    #FIX IT BELOW
+                    proveKey(conf, key)
+                    #END FIX IT BELOW`
+
+                    #DO NOT TOUCH
+                    self.conf['y'] -= self.conf['metric']
+                    if self.conf['y'] < self.conf['MIN_Y']:
+                        self.conf['y'] = self.conf['MIN_Y']
+                    #END DO NOT TOUCH
+
+                elif key == ord("s"):
+                    proveKey(conf, key)
+                    self.conf['y'] += self.conf['metric']
+                    if self.conf['y'] > self.conf['MAX_Y']:
+                        self.conf['y'] = self.conf['MAX_Y']
+
+                elif key == ord("d"):
+                    proveKey(conf, key)
+                    self.conf['x'] += self.conf['metric']
+                    if self.conf['x'] > self.conf['MAX_X']:
+                        self.conf['x'] = self.conf['MAX_X']
+                    
+                elif key == ord("a"):
+                    proveKey(conf, key)
+                    self.conf['x'] -= self.conf['metric']
+                    if self.conf['x'] < self.conf['MIN_X']:
+                        self.conf['x'] = self.conf['MIN_X']
     
 
 if __name__ == "__main__":
-    th_fifo = FifoThread()
-    th_fifo.start()
+
+    th_keyINput = KeyboardThread()
+    th_keyINput.start()
 
     for frame in camera.capture_continuous(rawCapture, format='bgr', use_video_port=True):
         #get source from camera
@@ -199,54 +256,4 @@ if __name__ == "__main__":
         #make clean the buffer above
         rawCapture.truncate(0)
 
-        key = cv2.waitKey(1) & 0xFF
-        '------------> ki yoon waitKey(argu) > the number of argu very very many,  we are keyboard ASCII surround, 0xFF = 256(ASCII num)'
-        if key != 255 :
-            print(str(key))
-        #adjust timer
-        try:
-            conf['timer'] += 1
-            if conf['timer'] > conf['timerTh']:
-                conf['timer'] = 0
-        except:
-            conf['timer'] = 0
-            pass
-
-        #take branched process
-        if key == ord("q"):
-            if fifo < 0:
-                with open(FIFO_PATH, 'w+') as fifo_file:
-                    fifo_file.close()
-            th_fifo.shutdown_event.set()
-            th_fifo.join()
-            cv2.destroyAllWindows()
-            break
-
-        elif key == ord("w"):
-            #FIX IT BELOW
-            proveKey(conf, key)
-            #END FIX IT BELOW`
-
-            #DO NOT TOUCH
-            conf['y'] -= conf['metric']
-            if conf['y'] < conf['MIN_Y']:
-                conf['y'] = conf['MIN_Y']
-            #END DO NOT TOUCH
-
-        elif key == ord("s"):
-            proveKey(conf, key)
-            conf['y'] += conf['metric']
-            if conf['y'] > conf['MAX_Y']:
-                conf['y'] = conf['MAX_Y']
-
-        elif key == ord("d"):
-            proveKey(conf, key)
-            conf['x'] += conf['metric']
-            if conf['x'] > conf['MAX_X']:
-                conf['x'] = conf['MAX_X']
-            
-        elif key == ord("a"):
-            proveKey(conf, key)
-            conf['x'] -= conf['metric']
-            if conf['x'] < conf['MIN_X']:
-                conf['x'] = conf['MIN_X']
+        if(not th_keyINput.isAlive()) break
