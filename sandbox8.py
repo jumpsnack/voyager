@@ -143,7 +143,8 @@ class FifoThread(threading.Thread):
 
     def run(self):
         global fifo, FIFO_PATH
-        while not self.shutdown_event.is_set
+        while not self.shutdown_event.is_set():
+            try:
                 self.openFifo()
                 self.readFifo()
             except:
