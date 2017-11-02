@@ -81,7 +81,7 @@ class FifoThread(threading.Thread):
 
     def readFifo(self):
         global fifo
-
+        print "TRY READ"
         while not self.shutdown_event.is_set():
             time.sleep(0.2)
             try:
@@ -110,6 +110,7 @@ class FifoThread(threading.Thread):
         global fifo, FIFO_PATH
 
         while not self.shutdown_event.is_set():
+            print "TRY OPEN"
             time.sleep(0.025)
             try:
                 if(fifo == -1):
@@ -129,9 +130,10 @@ class FifoThread(threading.Thread):
 
     def run(self):
         global fifo, FIFO_PATH
-
+        print "THREAD START"
         while not self.shutdown_event.is_set():
             try:
+                print "THREAD IN"
                 self.openFifo()
                 self.readFifo()
             except:
