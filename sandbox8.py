@@ -114,7 +114,7 @@ class FifoThread(threading.Thread):
             time.sleep(0.025)
             try:
                 if(fifo == -1):
-                    fifo_file = open(FIFO_PATH, 'w')
+                    fifo_file = open(FIFO_PATH, 'w+')
                     print "TRY FIFO REMOVE"
                     fifo_file.close()
                     print "FIFO REMOVED"
@@ -213,7 +213,6 @@ if __name__ == "__main__":
             print(fifo)
             if fifo < 0:
                 with open(FIFO_PATH, 'w+') as fifo_file:
-                    fifo_file.write('-1')
                     fifo_file.close()
             th_fifo.shutdown_event.set()
             th_fifo.join()
