@@ -210,8 +210,8 @@ if __name__ == "__main__":
 
         #take branched process
         if key == ord("q"):
+            print(fifo)
             th_fifo.shutdown_event.set()
-            th_fifo._is_running = False
             th_fifo.join()
             cv2.destroyAllWindows()
             break
