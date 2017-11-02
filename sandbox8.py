@@ -7,6 +7,7 @@ import errno
 import time
 import json
 import threading
+from multiprocessing import Queue
 
 '//=========Configuration==========//'
 conf = {
@@ -26,6 +27,8 @@ conf = {
 
 conf['MAX_X'] = conf['RES_W'] - conf['w'] #target x bound
 conf['MAX_Y'] = conf['RES_H'] - conf['h'] #target y bound
+
+q_key = Queue()
 '//END========Configuration========//'
 
 
@@ -162,10 +165,10 @@ class KeyboardThread(threading.Thread):
         self.conf = conf
 
     def run(self):
-        global fifo, FIFO_PATH
+        global fifo, FIFO_PATH, key_q
         while not self.shutdown_event.is_set():
             '------------> ki yoon waitKey(argu) > the number of argu very very many,  we are keyboard ASCII surround, 0xFF = 256(ASCII num)'
-            key = 1
+            key = key_q.get()
             #adjust timer
             try:
                 conf['timer'] += 1
@@ -252,7 +255,7 @@ if __name__ == "__main__":
         cv2.imshow("Test", image)
 
 
-        key = cv2.waitKey(1) & 0xFF
+        key_q.put(cv2.waitKey(1) & 0xFF)
 
         '''post-process'''
         #make clean the buffer above
