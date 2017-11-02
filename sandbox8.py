@@ -220,7 +220,7 @@ class KeyboardThread(threading.Thread):
 
 if __name__ == "__main__":
 
-    th_keyINput = KeyboardThread()
+    th_keyINput = KeyboardThread(conf)
     th_keyINput.start()
 
     for frame in camera.capture_continuous(rawCapture, format='bgr', use_video_port=True):
