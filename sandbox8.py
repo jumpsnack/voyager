@@ -7,6 +7,7 @@ import errno
 import time
 import json
 import threading
+import pdb
 
 '//=========Configuration==========//'
 conf = {
@@ -226,7 +227,7 @@ if __name__ == "__main__":
     for frame in camera.capture_continuous(rawCapture, format='bgr', use_video_port=True):
         #get source from camera
         image = frame.array
-
+        pdb.set_trace()
         '''pre-process'''
         #set text on the source
         cv2.putText(image
