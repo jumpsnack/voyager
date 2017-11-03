@@ -102,7 +102,6 @@ class FifoThread(threading.Thread):
                     #print('cnt: {0}, cx: {1}, cy: {2}, left: {3}, top: {4}, right: {5}, bottom: {6}'.format(
                     #    parsed_json['cnt'], parsed_json['cx'], parsed_json['cy'], parsed_json['left'], parsed_json['top'], parsed_json['right'], parsed_json['bottom']))
                 except:
-                    raise
                     pass
             except OSError as err:
                 if err.errno == 11:
