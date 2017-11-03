@@ -162,7 +162,7 @@ class TimerThread(threading.Thread):
             try:
                 conf['timer'] += 1
                 print(str(conf['timer']))
-                if conf['timer'] > conf['timerTh']:
+                if conf['timer'] > 0xff:
                     conf['timer'] = 0
                 time.sleep(1)
             except:
