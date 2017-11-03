@@ -160,7 +160,7 @@ class TimerThread(threading.Thread):
             #adjust timer
             try:
                 conf['timer'] += 1
-                print(str(conf['timer']))
+                print('timer-- ' + str(conf['timer']))
                 if conf['timer'] > 0xff:
                     conf['timer'] = 0
                 time.sleep(1)
@@ -184,7 +184,7 @@ class KeyboardThread(threading.Thread):
             conf['metric'] = 2
             conf['prevKey'] = key
         conf['timer'] = 0
-        print(str(conf['metric']))
+        print('metric-- '+str(conf['metric']))
 
     def run(self):
         global fifo, FIFO_PATH, q_key, th_fifo, th_timer
