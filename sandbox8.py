@@ -185,6 +185,7 @@ class KeyboardThread(threading.Thread):
             conf['metric'] = 2
             conf['prevKey'] = key
         conf['timer'] = 0
+        print(str(conf['metric']))
 
     def run(self):
         global fifo, FIFO_PATH, q_key, th_fifo, th_timer
@@ -245,6 +246,9 @@ if __name__ == "__main__":
     th_fifo.start()
 
     for frame in camera.capture_continuous(rawCapture, format='bgr', use_video_port=True):
+        if(not th_keyINput.isAlive()):
+            break
+        
         #get source from camera
         image = frame.array
 
@@ -278,6 +282,3 @@ if __name__ == "__main__":
         '''post-process'''
         #make clean the buffer above
         rawCapture.truncate(0)
-
-        if(not th_keyINput.isAlive()):
-            break
