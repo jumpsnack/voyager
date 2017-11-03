@@ -22,7 +22,7 @@ conf = {
     'metric': 2,#How much is target moved
     'prevKey': -1,#To detect whether it is continuous key input
     'timer': 0,
-    'timerTh': 1
+    'timerTh': 2
     }
 
 conf['MAX_X'] = conf['RES_W'] - conf['w'] #target x bound
