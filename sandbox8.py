@@ -28,7 +28,7 @@ conf = {
 conf['MAX_X'] = conf['RES_W'] - conf['w'] #target x bound
 conf['MAX_Y'] = conf['RES_H'] - conf['h'] #target y bound
 
-q_key = Queue()
+q_key = Queue() #Queue for send key data from any input which you want
 '//END========Configuration========//'
 
 
@@ -78,6 +78,7 @@ FIFO_PATH = "face_detect_fifo"
 '//END======FIFO THREAD SET==========//'
 
 
+''' THREAD FOR FIFO '''
 class FifoThread(threading.Thread):
     
     def __init__(self):
@@ -97,7 +98,7 @@ class FifoThread(threading.Thread):
                     time.sleep(1.25)
                     print('__None')
                 try:
-                    q_key.put(ord(data))
+                    q_key.put(ord(data)) #For testing with the fifo_writer
                     #parsed_json = json.loads(data)
                     #print('cnt: {0}, cx: {1}, cy: {2}, left: {3}, top: {4}, right: {5}, bottom: {6}'.format(
                     #    parsed_json['cnt'], parsed_json['cx'], parsed_json['cy'], parsed_json['left'], parsed_json['top'], parsed_json['right'], parsed_json['bottom']))
@@ -128,9 +129,9 @@ class FifoThread(threading.Thread):
                 print("[fifo error] Can't open the fifo! path__" + FIFO_PATH)
                 continue
 
-
     def run(self):
         global fifo, FIFO_PATH
+
         while not self.shutdown_event.is_set():
             try:
                 self.openFifo()
@@ -148,6 +149,7 @@ class FifoThread(threading.Thread):
                 os.remove(FIFO_PATH)
             '''
 
+''' THREAD FOR TIMER '''
 class TimerThread(threading.Thread):
     
     def __init__(self, conf):
@@ -160,7 +162,6 @@ class TimerThread(threading.Thread):
             #adjust timer
             try:
                 conf['timer'] += 1
-                print('timer-- ' + str(conf['timer']))
                 if conf['timer'] > 0xff:
                     conf['timer'] = 0
                 time.sleep(1)
@@ -168,6 +169,7 @@ class TimerThread(threading.Thread):
                 conf['timer'] = 0
                 pass
 
+''' THREAD FOR KEY INPUT '''
 class KeyboardThread(threading.Thread):
     
     def __init__(self, conf):
@@ -184,7 +186,6 @@ class KeyboardThread(threading.Thread):
             conf['metric'] = 2
             conf['prevKey'] = key
         conf['timer'] = 0
-        print('metric-- '+str(conf['metric']))
 
     def run(self):
         global fifo, FIFO_PATH, q_key, th_fifo, th_timer
@@ -234,18 +235,21 @@ class KeyboardThread(threading.Thread):
                     if self.conf['x'] < self.conf['MIN_X']:
                         self.conf['x'] = self.conf['MIN_X']
 
+'//=========THREAD INITIALIZING=========//'
 th_timer = TimerThread(conf)
-th_keyINput = KeyboardThread(conf)
+th_keyInput = KeyboardThread(conf)
 th_fifo = FifoThread()
+'//END======THREAD INITIALIZING========//'
 
 if __name__ == "__main__":
 
     th_timer.start()
-    th_keyINput.start()
+    th_keyInput
+.start()
     th_fifo.start()
 
     for frame in camera.capture_continuous(rawCapture, format='bgr', use_video_port=True):
-        if(not th_keyINput.isAlive()):
+        if(not th_keyInput.isAlive()):
             break
         
         #get source from camera
